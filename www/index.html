@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sakan</title>
+<style>
+:root{--p:#6D55FF;--pl:#EEEAFF;--bg:#F9F8F6;--t:#16142B;--g:#6b6880;--ok:#1a9d5c}
+*{box-sizing:border-box;margin:0;font-family:system-ui,-apple-system,Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--t)}
+#app{max-width:480px;margin:auto;min-height:100vh;padding:calc(env(safe-area-inset-top) + 12px) 16px 100px}
+h1{font-size:22px}h2{font-size:18px;margin:18px 0 8px}
+.hd{display:flex;align-items:center;gap:8px;font-weight:700;font-size:22px;margin-bottom:12px}.hd img{width:30px}
+.card{background:#fff;border-radius:18px;padding:14px;margin:10px 0;box-shadow:0 2px 10px #0000000d}
+.hero{background:linear-gradient(135deg,var(--pl),#fff);border-radius:18px;padding:18px}
+.badge{display:inline-block;background:var(--pl);color:var(--p);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600}
+.img{height:150px;border-radius:14px;margin-bottom:10px;position:relative}
+.img .badge{position:absolute;left:8px;top:8px;background:#fff}
+.heart{position:absolute;right:8px;top:8px;width:34px;height:34px;border-radius:50%;background:#fff;border:0;font-size:18px;color:var(--p)}
+.btn{background:var(--p);color:#fff;border:0;border-radius:14px;padding:13px 16px;font-weight:600;font-size:15px;width:100%}
+.btn.s{width:auto;padding:10px 14px}.btn.o{background:var(--pl);color:var(--p)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.price{color:var(--p);font-weight:800;font-size:20px}.g{color:var(--g);font-size:13px}
+input[type=text]{width:100%;padding:13px;border:1px solid #ddd;border-radius:14px;font-size:15px;background:#fff}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:10px 0}.chip{white-space:nowrap;padding:8px 14px;border-radius:20px;background:#eceaf2;font-size:14px;border:0}.chip.on{background:var(--p);color:#fff}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:8px 0 calc(env(safe-area-inset-bottom) + 8px);box-shadow:0 -2px 12px #0000001a}
+nav button{background:none;border:0;font-size:12px;color:var(--g);display:flex;flex-direction:column;align-items:center;gap:2px}nav button span{font-size:22px}nav .on{color:var(--p);font-weight:700}
+.ob{position:fixed;inset:0;background:#fff;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;gap:14px}
+.ob img{width:110px}.dots{display:flex;gap:6px}.dots i{width:8px;height:8px;border-radius:4px;background:#ddd}.dots i.on{width:24px;background:var(--p)}
+.bar{height:8px;border-radius:4px;background:#e5e2f0}.bar i{display:block;height:100%;background:var(--p);border-radius:4px}
+.ok{color:var(--ok);font-weight:600}
+.msg{max-width:80%;padding:10px 12px;border-radius:14px;margin:6px 0;font-size:14px}.me{background:var(--p);color:#fff;margin-left:auto}.him{background:#fff}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--t);color:#fff;padding:12px 18px;border-radius:14px;z-index:10;font-size:14px}
+</style></head><body>
+<div id="app"></div><div id="nav"></div>
+<script>
+const L=[
+{id:1,t:'Studio moderne ensoleillé',v:'Casablanca, Gauthier',p:4200,m:'5 min tramway',s:42,type:'Studio',tags:['Wifi Fibre','Meublé','Balcon'],c:'#d9ccff,#f3e9df'},
+{id:2,t:'Appartement Agdal Campus',v:'Rabat, Agdal',p:3800,m:'3 min Université UM5',s:55,type:'Appartement',tags:['Proche Fac','Machine à laver','Gardiennage 24/7'],c:'#e6d9f5,#f7efe6'},
+{id:3,t:'Superbe Studio Meublé – Al Irfan',v:'Rabat, Al Irfan',p:2500,m:'3 min à pied du Tramway Ibn Rochd',s:42,type:'Studio',tags:['Wifi Fibre','Climatisation','Concierge'],c:'#cfe0ff,#f3ece4'},
+{id:4,t:'Chambre en colocation conviviale',v:'Rabat, Al Irfan',p:2500,m:'10 min universités',s:18,type:'Colocation',tags:['Charges comprises','Idéal étudiant'],c:'#f1d9e8,#efe8ff'},
+{id:5,t:'Bel appartement Maarif',v:'Casablanca, Maarif',p:5800,m:'2 min Busway',s:78,type:'Appartement',tags:['Garage sous-sol'],c:'#d6f0e4,#efe8ff'}];
+let st={tab:'home',fav:[1,2],obStep:0,max:6000,type:'Tous',q:'',det:null,toast:'',chat:false};
+const ob=[['Trouve ton logement idéal','Des centaines de studios et colocations vérifiés à Casablanca, Rabat et partout au Maroc.'],['Calcule tes trajets réels','Estime en direct le temps de trajet en tramway, bus et à pied jusqu\'à ton université ou lieu de travail.'],['Loue en toute sécurité','Zéro arnaque et zéro avance de frais. Visite des logements certifiés avec un dossier 100% protégé.']];
+const $=s=>document.querySelector(s);
+const tog=id=>{st.fav=st.fav.includes(id)?st.fav.filter(x=>x!=id):[...st.fav,id];draw()};
+const go=t=>{st.tab=t;st.det=null;st.chat=false;draw();scrollTo(0,0)};
+const toast=m=>{st.toast=m;draw();setTimeout(()=>{st.toast='';draw()},2200)};
+const card=l=>`<div class="card"><div class="img" style="background:linear-gradient(135deg,${l.c.split(',').join(',')})"><span class="badge">✔ Vérifié Sakan</span><button class="heart" onclick="tog(${l.id})">${st.fav.includes(l.id)?'♥':'♡'}</button></div>
+<b>${l.t}</b><div class="g">📍 ${l.v} · ${l.m}</div><div class="g" style="margin-top:6px">${l.s} m² · ${l.tags.join(' · ')}</div>
+<div class="row" style="margin-top:10px"><div><div class="g">Loyer mensuel</div><span class="price">${l.p.toLocaleString('fr')} DH</span> <span class="g">/ mois</span></div><button class="btn s" onclick="st.det=${l.id};draw();scrollTo(0,0)">Voir détails →</button></div></div>`;
+function home(){return `<div class="hd"><img src="logo.png">sakan</div>
+<div class="hero"><span class="badge">✔ 100% vérifié</span><h1 style="margin-top:8px">Trouve ton logement idéal en toute sérénité</h1><p class="g" style="margin-top:6px">Zéro caution floue, trajets étudiants calculés.</p></div>
+<input type="text" id="hq" placeholder="Ville, quartier, école ou tramway…" style="margin-top:12px" onkeydown="if(event.key==='Enter'){st.q=this.value;go('search')}">
+<div class="chips">${['Studio','Colocation','Appartement'].map(t=>`<button class="chip" onclick="st.type='${t}';go('search')">${t}</button>`).join('')}</div>
+<div class="row"><h2>Recommandés pour toi</h2><a class="g" style="color:var(--p)" onclick="go('search')">Voir tout</a></div>
+${L.slice(0,2).map(card).join('')}
+<h2>Villes populaires</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[['Casablanca','840+'],['Rabat','520+'],['Marrakech','390+'],['Tanger','270+']].map(c=>`<div class="card" style="margin:0" onclick="st.q='${c[0]}';go('search')"><b>${c[0]}</b><div class="g">${c[1]} annonces</div></div>`).join('')}</div>
+<div class="card" style="background:var(--pl)"><b>Garantie Transparence Sakan</b><p class="g">Contrats types, aucune commission cachée et visite vérifiée.</p></div>`}
+function search(){const r=L.filter(l=>l.p<=st.max&&(st.type=='Tous'||l.type==st.type)&&(l.t+l.v).toLowerCase().includes(st.q.toLowerCase()));
+return `<h1>Recherche</h1><input type="text" value="${st.q}" placeholder="Ville, quartier, école…" oninput="st.q=this.value;clearTimeout(window.tm);window.tm=setTimeout(()=>{draw();const e=$('input[type=text]');e.focus();e.setSelectionRange(99,99)},400)" style="margin:10px 0">
+<div class="chips">${['Tous','Studio','Appartement','Colocation'].map(t=>`<button class="chip ${st.type==t?'on':''}" onclick="st.type='${t}';draw()">${t}</button>`).join('')}</div>
+<div class="card"><div class="row"><b>Budget max</b><span class="price" style="font-size:16px">${st.max.toLocaleString('fr')} DH</span></div><input type="range" min="1500" max="8000" step="100" value="${st.max}" style="width:100%" oninput="st.max=+this.value;this.previousElementSibling.lastElementChild.textContent=(+this.value).toLocaleString('fr')+' DH'" onchange="draw()"></div>
+<h2>${r.length} logements disponibles</h2>${r.map(card).join('')||'<p class="g">Aucun résultat.</p>'}`}
+function detail(){const l=L.find(x=>x.id==st.det);return `<button class="chip" onclick="st.det=null;draw()">← Retour</button>
+<div class="img" style="height:220px;margin-top:10px;background:linear-gradient(135deg,${l.c})"><span class="badge">● Disponibilité immédiate</span><button class="heart" onclick="tog(${l.id})">${st.fav.includes(l.id)?'♥':'♡'}</button></div>
+<div class="card" style="background:var(--pl)"><b>Certifié & Visité par Sakan ✔</b><div class="g">Conforme aux photos, loyer et charges vérifiés.</div></div>
+<h1>${l.t}</h1><p class="g">📍 ${l.v} – ${l.m}</p>
+<div class="card row"><div><span class="price">${l.p.toLocaleString('fr')} DH</span> <span class="g">/ mois</span><div class="ok" style="font-size:12px">✓ Charges & syndic compris</div></div><div class="g">Bail 12 mois<br>Caution : 1 mois</div></div>
+<h2>Caractéristiques</h2><div class="card">Surface : ${l.s} m²<br>Type : ${l.type}<br>${l.tags.join(' · ')}</div>
+<h2>Propriétaire</h2><div class="card"><b>Karim B.</b> <span class="badge">Certifié Sakan</span><div class="g">Membre depuis 2 ans · Répond en moins d'1h (98%)</div></div>
+<div class="row" style="margin-top:12px"><button class="btn o" onclick="toast('Demande de visite envoyée ✔ Karim confirme sous 2h');st.det=null;draw()">Visiter</button><button class="btn" onclick="st.chat=true;draw()">Contacter</button></div>`}
+function chat(){return `<button class="chip" onclick="st.chat=false;draw()">← Retour</button><h1 style="margin:10px 0">Karim B. <span class="badge">HÔTE</span></h1>
+<div class="card" style="background:var(--pl);font-size:13px">🔒 Échange sécurisé. Ne transférez aucun fonds avant la visite physique des lieux.</div>
+<div class="msg me">Bonjour Karim, j'ai réservé le créneau du mercredi 15 mai à 14h30. Mon dossier locatif est vérifié et complet.</div>
+<div class="msg him">Parfait, le créneau est validé. Je vous attends à 14h30 devant la résidence Al Manar.</div>
+<div class="row" style="position:fixed;bottom:80px;left:16px;right:16px"><input type="text" id="m" placeholder="Écrivez votre message…"><button class="btn s" onclick="toast('Message envoyé')">➤</button></div>`}
+function fav(){const f=L.filter(l=>st.fav.includes(l.id));return `<g class="g">ESPACE RECHERCHE</g><h1>Favoris (${f.length} logements)</h1>${f.map(card).join('')||'<p class="g">Aucun favori pour le moment.</p>'}
+${f.length>1?`<div class="card"><b>Tableau comparatif rapide</b><table style="width:100%;font-size:13px;margin-top:8px"><tr><td></td>${f.slice(0,2).map(l=>`<th>${l.t.split(' ').slice(-1)}</th>`).join('')}</tr><tr><td>Loyer</td>${f.slice(0,2).map(l=>`<td>${l.p} DH</td>`).join('')}</tr><tr><td>Surface</td>${f.slice(0,2).map(l=>`<td>${l.s} m²</td>`).join('')}</tr><tr><td>Transport</td>${f.slice(0,2).map(l=>`<td>${l.m}</td>`).join('')}</tr></table></div>`:''}`}
+function profil(){return `<div class="card"><div class="row" style="justify-content:flex-start;gap:14px"><div style="width:60px;height:60px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-size:26px">L</div><div><h1>Lina</h1><div class="g">Étudiant / Jeune actif</div></div></div><p style="margin-top:10px"><span class="badge">✔ Dossier vérifié Sakan (100%)</span></p></div>
+<div class="card"><b>Mon profil de recherche</b><p class="g" style="margin-top:6px">🎓 Faculté de Médecine et pharmacie<br>Rayon max 20 min en tramway / marche</p><p class="price" style="margin-top:6px">1500 – 2500 DH/mois</p><p class="g">Rabat (Al Irfan) · Rabat (Agdal)</p></div>
+<div class="card"><div class="row"><b>Mon Dossier Locatif numérique</b><span class="badge ok">Prêt à l'envoi</span></div>
+<div class="bar" style="margin:10px 0"><i style="width:75%"></i></div>
+${['Pièce d\'identité (CNIE) – Vérifiée','Justificatif étudiant – 2024-2025','Garant & justificatif de revenu – validé'].map(x=>`<p class="ok" style="margin:6px 0">✔ ${x}</p>`).join('')}
+<button class="btn" style="margin-top:8px" onclick="toast('Dossier mis à jour ✔')">Télécharger / Mettre à jour mon dossier</button></div>
+<div class="card" onclick="toast('Visite : Studio Maarif, jeudi 16h30')"><b>Mes visites planifiées</b> <span class="badge">1 à venir</span><div class="g">Studio moderne Maarif Extension – Jeudi 16h30</div></div>
+<div class="card"><b>Mes alertes actives</b><div class="g">2 alertes configurées (Maarif ≤ 4 500 DH)</div></div>
+<p style="text-align:center;color:#d33;margin-top:16px" onclick="st.obStep=0;st.ob=1;draw()">Déconnexion de mon compte</p>`}
+function onboard(){const[a,b]=ob[st.obStep];return `<div class="ob"><div class="row" style="width:100%"><span></span><a class="g" onclick="st.obStep=9;draw()">Passer</a></div><div style="flex:1;display:grid;place-items:center"><img src="logo.png" style="width:150px"></div>
+<div class="dots">${ob.map((_,i)=>`<i class="${i==st.obStep?'on':''}"></i>`).join('')}</div><h1>${a}</h1><p class="g">${b}</p>
+<button class="btn" onclick="st.obStep++;draw()">${st.obStep==2?'Commencer l\'expérience →':'Suivant →'}</button><p class="g">Déjà un compte ? <b style="color:var(--p)" onclick="st.obStep=9;draw()">Se connecter</b></p></div>`}
+function draw(){
+ let h=st.obStep<3?onboard():st.chat?chat():st.det?detail():({home,search,fav,profil})[st.tab]();
+ $('#app').innerHTML=h+(st.toast?`<div class="toast">${st.toast}</div>`:'');
+ $('#nav').innerHTML=st.obStep<3?'':`<nav>${[['home','⌂','Accueil'],['search','🔍','Recherche'],['fav','♡','Favoris'],['profil','👤','Profil']].map(n=>`<button class="${st.tab==n[0]?'on':''}" onclick="go('${n[0]}')"><span>${n[1]}</span>${n[2]}</button>`).join('')}</nav>`}
+draw();
+</script></body></html>
